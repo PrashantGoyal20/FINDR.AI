@@ -1,0 +1,21 @@
+--index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1
+torchvision  
+tqdm
+numpy
+pillow
+scikit-learn
+datasets==3.6.0
+huggingface_hub
+open-clip-torch
+flask==3.0.3
+flask_cors
+flask_sqlalchemy==3.1.1
+flask_bcrypt==1.0.1
+flask_jwt_extended==4.6.0
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+transformers
+cloudinary
+uuid
+qdrant-client
