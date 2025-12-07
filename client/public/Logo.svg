@@ -1,0 +1,42 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Clean Gradient -->
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Letter F Shape -->
+  <g transform="translate(50, 50)">
+    <!-- Main F Structure -->
+    <path d="M20 20 
+             L20 130 
+             L30 130 
+             L30 85 
+             L70 85 
+             L70 75 
+             L30 75 
+             L30 50 
+             L80 50 
+             L80 40 
+             L30 40 
+             L30 30 
+             L85 30 
+             L85 20 
+             Z" 
+          fill="url(#logoGradient)"/>
+  </g>
+  
+  <!-- Magnifying Glass integrated into the F -->
+  <g transform="translate(115, 85)">
+    <!-- Glass Circle -->
+    <circle cx="0" cy="0" r="20" fill="none" stroke="white" stroke-width="6" filter="url(#logoShadow)"/>
+    
+    <!-- Handle extending from the F -->
+    <line x1="14" y1="14" x2="28" y2="28" stroke="white" stroke-width="6" stroke-linecap="round" filter="url(#logoShadow)"/>
+    
+    <!-- Small dot in center -->
+    <circle cx="0" cy="0" r="2.5" fill="white"/>
+  </g>
+</svg>
