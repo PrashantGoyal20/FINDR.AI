@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Call backend matcher API
         run: |
-          curl -X POST "${{scheduler_api.SCHEDULER_API}}" \
-               -H "X-Admin-Key: ${{ scheduler_api.ADMIN_API_KEY }}" \
+          curl -X POST "${{secrets.SCHEDULER_API}}" \
+               -H "X-Admin-Key: ${{ secrets.ADMIN_API_KEY }}" \
                -H "Content-Type: application/json" \
                -d '{"min_age_minutes": 60, "confidence_threshold": 0.8}'
