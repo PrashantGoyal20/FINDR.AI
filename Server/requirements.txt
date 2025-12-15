@@ -2,9 +2,9 @@
 torch==2.5.1
 torchvision  
 tqdm
-numpy==2.3.3
-pillow==11.3.0
-datasets==2.19.0
+numpy
+pillow
+datasets
 huggingface_hub==0.34.4
 open-clip-torch==3.1.0
 flask==3.0.3
