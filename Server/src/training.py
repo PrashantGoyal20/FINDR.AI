@@ -14,7 +14,8 @@ from io import BytesIO
 warnings.filterwarnings("ignore", message=".*QuickGELU mismatch.*")
 
 device='cuda' if torch.cuda.is_available() else 'cpu'
-model, _, preprocess =open_clip.create_model_and_transforms('ViT-B-32',pretrained='openai',device=device,quick_gelu=True )
+torch.cuda.empty_cache()
+model, _, preprocess =open_clip.create_model_and_transforms('ViT-B-32',pretrained='openai',device=device )
 SAVE_DIR='model/clip/best.pt'
 tokenizer=open_clip.get_tokenizer('ViT-B-32')
 

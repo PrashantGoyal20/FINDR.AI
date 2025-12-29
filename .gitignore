@@ -158,6 +158,10 @@ cython_debug/
 Server/model
 Server/datasets
 
+Server/Dockerfile
+Server/.dockerignore
+Server/start.sh
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore

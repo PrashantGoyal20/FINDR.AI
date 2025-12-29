@@ -8,9 +8,11 @@ export function AppProvider({ children }) {
   const [user, setUser] = useState(null); 
   const [isAuthorized,setIsAuthorized]=useState(false)
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [loading,setLoading]=useState(true)
 
   useEffect(() => {
     const getuser=async()=>{
+      setLoading(true)
     axios.get('/api/get_user',{withCredentials: true }).then((res)=>{
       if(res.data.success){
         setUser(res.data.user)
@@ -24,6 +26,9 @@ export function AppProvider({ children }) {
       setUser("")
       console.log(error)
     })
+    .finally(()=>{
+      setLoading(false)
+    })
     }
     getuser()
     console.log(user)
@@ -36,7 +41,7 @@ export function AppProvider({ children }) {
   }, [isDarkMode]);
 
   return (
-    <AppContext.Provider value={{ user, setUser, isAuthorized, setIsAuthorized, isDarkMode, setIsDarkMode }}>
+    <AppContext.Provider value={{ user, setUser, isAuthorized, setIsAuthorized, isDarkMode, setIsDarkMode, loading, setLoading }}>
       {children}
     </AppContext.Provider>
   );

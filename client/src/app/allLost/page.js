@@ -259,7 +259,7 @@ const page = () => {
                   <div className="flex items-center justify-between pt-4 border-t border-gray-700/30">
                    
 
-                    <button className={`px-4 py-2 flex items-center rounded-lg font-medium text-sm transition-all duration-300 ${themeClasses.button.primary}`}>
+                    <button onClick={()=>router.push(`/lostMatches/${item.id}`)} className={`px-4 py-2 flex items-center rounded-lg font-medium text-sm transition-all duration-300 ${themeClasses.button.primary}`}>
                       
                         <Search className={`w-4 h-4 mr-1 ${themeClasses.text.muted}`} />View Matches
                     </button>

@@ -3,6 +3,7 @@ import "./globals.css"
 import Link from "next/link";
 import { AppProvider, useAppContext } from "./components/contexts";
 import {Toaster} from 'react-hot-toast'
+import Loading from "./components/Loading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +33,11 @@ export default function RootLayout({ children }) {
        
         <Link href='/login'/>
         <Link href='/signup'/>
-        <Link href='/dashboard'/>
-        <Link href='/reportLost'/>
-        <Link href='/foundLost'/>
+
+        <Loading><Link href='/dashboard'/></Loading>
+        <Loading><Link href='/reportLost'/></Loading>
+        <Loading><Link href='/foundLost'/></Loading>
+        
       </nav>
         {children}
 

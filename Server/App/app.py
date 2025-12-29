@@ -3,15 +3,14 @@ from flask import Flask,request,jsonify,make_response
 from flask_bcrypt import Bcrypt
 from functools import wraps
 from flask_jwt_extended import JWTManager, create_access_token,unset_jwt_cookies, jwt_required, get_jwt_identity,decode_token
-from App.models import db, User,LostItem,FoundItem
+from App.models import db, User,LostItem,FoundItem,Match
 from dotenv import load_dotenv
 from flask_cors import CORS
 from src.training import encode_img_and_text
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 import cloudinary
-# import cloudinary.uploader
-# from supabase import create_client
+from cloudinary import uploader 
 import warnings
 import base64
 from io import BytesIO
@@ -33,7 +32,6 @@ app.config["JWT_COOKIE_SECURE"] = False
 app.config["JWT_COOKIE_DOMAIN"] = ".localhost"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=3)
 
-# supabase=create_client(os.getenv("DATABASE_URL"),os.getenv("SUPABASE_KEY"))
 
 qdrant=QdrantClient(
     url=os.getenv("Qdrant_url"),
@@ -58,22 +56,6 @@ print("Posgres Connected")
 
 
 
-# @app.before_first_request
-# def startup():
-#     threading.Thread(target='', daemon=True).start()
-#     print("Background thread started")
-
-# def listener():
-#     def insert_listener(payload):
-#         new_row=payload.get('new')
-#         if not new_row:
-#             return
-#         threading.Thread(target=process_new_row, args=(new_row,), daemon=True).start()
-#     supabase.from_('foundItem').on('INSERT', insert_listener).subscribe()
-
-# def process_new_row(new_row : dict):
-#     ""   
-
 def decode_jwt(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
@@ -91,7 +73,7 @@ def decode_jwt(fn):
     
 
 def upload_img(img):
-    return cloudinary.uploader.upload(img, resource_type="image")["secure_url"]    
+    return uploader.upload(img, resource_type="image")["secure_url"]    
 
 @app.route('/register',methods=["POST"])
 def register():
@@ -139,7 +121,7 @@ def login():
             return jsonify({
                 "sucsess":False,
                 "message":"No User Found"
-            }),400
+            }),200
         token=create_access_token(identity=str(user.id), expires_delta=timedelta(days=3))
         res=make_response({
             "success":True,
@@ -216,7 +198,7 @@ def lostItem(user_id):
         qdrant.upsert(
             collection_name="lost_items",
             points=[
-                models.PointStruct(id=item.id, vector=vector, payload={"description":description})
+                models.PointStruct(id=item.id, vector=vector, payload={"description":description,"status" : "active"})
             ],
         )
         print('vector save')
@@ -266,7 +248,7 @@ def foundItem(user_id):
         qdrant.upsert(
             collection_name="found_items",
             points=[
-                models.PointStruct(id=item.id, vector=vector, payload={"description":description})
+                models.PointStruct(id=item.id, vector=vector, payload={"description":description,"status" : "active"})
             ],
         )
         print('vector save')
@@ -306,6 +288,101 @@ def allLostItems(user_id):
             "lostItems":output
         }),200
 
+@app.route('/matchLost/<lost_id>',methods=['GET'])
+def matchLost(lost_id):
+    items = LostItem.query.filter(LostItem.id==lost_id).first()
+    found_items=[]
+    if not items.found_items:
+        return jsonify({
+            "success":False,
+            "message":"No Lost Item Found"
+        }),400
+    for ids in items.found_items:
+        found_item=FoundItem.query.filter(FoundItem.id==int(ids)).first()
+        if found_item:
+            found_items.append({
+                "id": found_item.id,
+                "name": found_item.name,
+                "email": found_item.email,
+                "phone": found_item.phone,
+                "description": found_item.description,
+                "found_near": found_item.found_near,
+                "image_url": found_item.image_url,
+                "status": found_item.status,
+                "created_at": found_item.created_at
+            })   
+    
+    return jsonify({
+            "success":True,
+            "foundItems": found_items
+        }),200
+
+
+
+@app.route('/matchFound/<lost_id>',methods=['GET'])
+def matchFound(lost_id):
+    items = FoundItem.query.filter(FoundItem.id==lost_id).first()
+
+    found_items=[]
+    if not items.lost_items:
+        return jsonify({
+            "success":False,
+            "message":"No Found Item Found"
+        }),200
+    for ids in items.lost_items:
+        found_item=LostItem.query.filter(LostItem.id==int(ids)).first()
+        if found_item:
+            found_items.append({
+                "id": found_item.id,
+                "name": found_item.name,
+                "email": found_item.email,
+                "phone": found_item.phone,
+                "description": found_item.description,
+                "found_near": found_item.lastSeenLocation,
+                "image_url": found_item.image_url,
+                "status": found_item.status,
+                "created_at": found_item.created_at
+            })
+    
+    return jsonify({
+            "success":True,
+            "foundItems": found_items
+        }),200
+
+
+@app.route('/lostMatchDetail/<lost_id>',methods=['GET'])
+def lostMatchDetail(lost_id):
+    found_item = LostItem.query.filter(LostItem.id==lost_id).first()
+    print(lost_id)
+    found_items=[]
+    if not found_item:
+        return jsonify({
+            "success":False,
+            "message":"No Found Item Found"
+        }),400
+    
+    found_items.append({
+                "id": found_item.id,
+                "name": found_item.name,
+                "email": found_item.email,
+                "phone": found_item.phone,
+                "description": found_item.description,
+                "found_near": found_item.lastSeenLocation,
+                "image_url": found_item.image_url,
+                "status": found_item.status,
+                "date_lost":found_item.dateTimeLost,
+                "reward":found_item.reward,
+                "additional_notes":found_item.additionalNotes,
+                "created_at": found_item.created_at
+    })
+
+    
+    return jsonify({
+            "success":True,
+            "foundItems": found_items
+        }),200
+
+
 @app.route('/allFoundItems',methods=['GET'])
 @decode_jwt
 def allFoundItems(user_id):
@@ -326,6 +403,35 @@ def allFoundItems(user_id):
     return jsonify({
             "success":True,
             "foundItems":output
+        }),200
+
+@app.route('/foundMatchDetail/<lost_id>',methods=['GET'])
+def foundMatchDetail(lost_id):
+    found_item = FoundItem.query.filter(FoundItem.id==lost_id).first()
+    print(lost_id)
+    found_items=[]
+    if not found_item:
+        return jsonify({
+            "success":False,
+            "message":"No Found Item Found"
+        }),400
+    
+    found_items.append({
+                "id": found_item.id,
+                "name": found_item.name,
+                "email": found_item.email,
+                "phone": found_item.phone,
+                "description": found_item.description,
+                "found_near": found_item.found_near,
+                "image_url": found_item.image_url,
+                "status": found_item.status,
+                "created_at": found_item.created_at
+    })
+    
+    
+    return jsonify({
+            "success":True,
+            "foundItems": found_items
         }),200
     
 if __name__ == "__main__":

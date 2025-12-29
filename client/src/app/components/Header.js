@@ -45,7 +45,7 @@ const Header = () => {
     <>
       <header class={`relative ${themeClasses.background}  z-10 px-4 sm:px-6 py-4 sm:py-4`}>
         <nav class="flex items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <a href='/'>
+          <a href={user ? "/dashboard" : "/"} >
           <div class="flex items-center space-x-2 sm:space-x-3" >
             <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
 

@@ -1,13 +1,9 @@
-"use client"
 import React from 'react';
 import { Search } from 'lucide-react';
-import { useAppContext } from '../components/contexts';
-import { useRouter } from 'next/navigation';
 
-export default function Loading({children}) {
-  const {user,isDarkMode,setIsDarkMode,loading,setLoading} =useAppContext()
-  const router=useRouter();
-  if(loading){return (
+export default function Loader() {
+    
+  return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900">
       <div className="relative">
         <div className="absolute inset-0 flex items-center justify-center">
@@ -39,9 +35,5 @@ export default function Loading({children}) {
         </div>
       </div>
     </div>
-  );}
-  if(!user){
-    router.push('/login')
-  }
-  return children;
+  );
 }
