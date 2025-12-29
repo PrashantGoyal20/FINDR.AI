@@ -41,8 +41,6 @@ DEFAULT_TOP_K = 5
 
 db.init_app(app)
 CORS(app, supports_credentials=True, origins=[os.getenv("CLIENT")])
-with app.app_context():
-    db.create_all()
 
 print('Qdrant connected')
 print("Posgres Connected")
