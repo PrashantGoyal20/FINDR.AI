@@ -1,0 +1,12 @@
+flask
+flask-cors
+flask-sqlalchemy
+flask-bcrypt
+flask-jwt-extended
+psycopg2-binary
+python-dotenv
+cloudinary
+qdrant-client
+numpy
+pillow
+tqdm
