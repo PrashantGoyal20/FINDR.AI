@@ -10,3 +10,4 @@ qdrant-client
 numpy
 pillow
 tqdm
+supabase

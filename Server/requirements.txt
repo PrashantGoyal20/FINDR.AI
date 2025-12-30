@@ -16,3 +16,4 @@ cloudinary
 qdrant-client
 datasets
 open-clip-torch
+supabase

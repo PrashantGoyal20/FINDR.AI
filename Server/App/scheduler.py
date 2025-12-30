@@ -3,27 +3,21 @@ from flask import Flask,request,jsonify,make_response
 from flask_bcrypt import Bcrypt
 from functools import wraps
 from flask_jwt_extended import JWTManager, create_access_token,unset_jwt_cookies, jwt_required, get_jwt_identity,decode_token
-from App.models import db, User,LostItem,FoundItem,Match
 from dotenv import load_dotenv
 from flask_cors import CORS
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from datetime import datetime, timedelta
-from sqlalchemy import select,create_engine
-from sqlalchemy.orm import sessionmaker
 from qdrant_client.models import PayloadSchemaType
-
+from supabase import create_client
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 
-engine = create_engine(os.getenv("DATABASE_URL"))
+db = create_client(os.getenv("DATABASE_URL"),os.getenv("SUPABASE_KEY"))
 
-SessionLocal = sessionmaker(bind=engine)
-
-session = SessionLocal()
 
 qdrant=QdrantClient(
     url=os.getenv("Qdrant_url"),
@@ -39,7 +33,6 @@ DEFAULT_MIN_AGE_MINUTES = 60
 DEFAULT_CONFIDENCE = 0.78
 DEFAULT_TOP_K = 5
 
-db.init_app(app)
 CORS(app, supports_credentials=True, origins=[os.getenv("CLIENT")])
 
 print('Qdrant connected')
@@ -58,24 +51,18 @@ def match_active_lost():
     top_k = int(body.get("top_k", DEFAULT_TOP_K))
 
     cutoff = iso_now_minus(min_age_minutes)
-
-    stmt = (
-    select(LostItem.id, LostItem.user_id, LostItem.created_at)
-    .where(
-        LostItem.status == "active",
-        )
-    )
     
-    lost_rows = session.execute(stmt).all()
+    lost_rows = (db.table("lostItem").select("*").eq("status","active").execute())
+    print(lost_rows.data[0])
     lost_items = [
     {
-        "id": r.id,
-        "user_id": r.user_id,
-        "created_at": r.created_at
+        "id": r.get("id"),
+        "user_id": r.get("user_id"),
+        "created_at": r.get("created_at")
     }
 
     
-    for r in lost_rows
+    for r in lost_rows.data
     ]
     if not lost_items:
         return jsonify({"message": "No eligible lost items found", "checked": 0}), 200
@@ -125,8 +112,7 @@ def match_active_lost():
                 continue
 
             try:
-                lost_stmt=(select(Match.lost_item_id,Match.found_item_id).where(Match.found_item_id==found_supabase_id,Match.lost_item_id==lost_id).limit(1))
-                existing_match=session.execute(lost_stmt).first()
+                existing_match=db.table("matches").select("lost_item_id","found_item_id").eq("found_item_id", found_supabase_id).eq("lost_item_id", lost_id).limit(1).execute()
                 if existing_match:
                     continue
             except Exception as e:
@@ -135,53 +121,70 @@ def match_active_lost():
             
             
             try:
-                match_record = Match(lost_item_id=lost_id, found_item_id=found_supabase_id, confidence_score=score)
-                db.session.add(match_record)
-                db.session.flush()
-                db.session.commit()
+                match_record = db.table("matches").insert({
+                                 "lost_item_id": lost_id,
+                                 "found_item_id": found_supabase_id,
+                                 "confidence_score": score
+                                    }).execute()
                 created_matches.append({"lost_id": lost_id, "found_id": found_supabase_id, "similarity": score})
             except Exception as e:
                 errors.append({"lost_id": lost_id, "found_id": found_supabase_id, "error": f"Supabase insert failed: {str(e)}"})
     
-    all_matches=(select(Match.id,Match.lost_item_id,Match.found_item_id,Match.confidence_score))
-    matches=session.execute(all_matches).all()   
+    matches=(db.table("matches").select("id","lost_item_id","found_item_id","confidence_score").execute()) 
 
     match_items = [
     {
-        "id": r.id,
-        "lost_id": int(r.lost_item_id),
-        "found_id": int(r.found_item_id),
-        "confidence_score": r.confidence_score
+        "id": r.get("id"),
+        "lost_id": int(r.get("lost_item_id")),
+        "found_id": int(r.get("found_item_id")),
+        "confidence_score": r.get("confidence_score")
     }     
-    for r in matches
+    for r in matches.data
     ]
 
     for match in match_items:
-        already_exist_found=LostItem.query.filter(LostItem.user_id==match["lost_id"] ,str(match["found_id"])== db.any_(LostItem.found_items)).first()
+        already_exist_found=(db.table("lostItem").select("*").eq("user_id", match["lost_id"]).contains("found_items", [str(match["found_id"])]).limit(1).execute()
+)
         if already_exist_found:
             continue
         else:
-            lost_item=LostItem.query.filter_by(id=match["lost_id"]).first()
-            if lost_item.found_items:
-                lost_item.found_items.append(match["found_id"])
+            res=(db.table("lostItem").select("*").eq("id", match["lost_id"]).limit(1).execute()
+)
+            if not res.data:
+                found_item = None
             else:
-                lost_item.found_items=[match["found_id"]]
-            db.session.commit()
-        already_exist_found=FoundItem.query.filter(FoundItem.user_id==match["found_id"] ,str(match["lost_id"])== db.any_(FoundItem.lost_items)).first()
+                found_item = res.data[0]
+
+            current_lost_items = found_item.get("found_items") or []
+
+            if match["found_id"] not in current_lost_items:
+                current_lost_items.append(match["found_id"])
+
+            db.table("lostItem").update({"found_items": current_lost_items }).eq("id", match["lost_id"]).execute()  
+        
+        already_exist_found=( db.table("foundItem").select("*").eq("user_id", match["found_id"]).contains("lost_items", [str(match["lost_id"])]).limit(1).execute()
+)
         if already_exist_found:
             continue    
         
         else:
-            found_item=FoundItem.query.filter_by(id=match["found_id"]).first()
-            if found_item.lost_items:
-                found_item.lost_items.append(match["lost_id"])
+            res=(db.table("foundItem").select("lost_items").eq("id", match["found_id"]).limit(1).execute()
+)
+            if not res.data:
+                found_item = None
             else:
-                found_item.lost_items=[match["lost_id"]]
-            db.session.commit()    
+                found_item = res.data[0]
+
+            current_lost_items = found_item.get("lost_items") or []
+
+            if match["lost_id"] not in current_lost_items:
+                current_lost_items.append(match["lost_id"])
+
+            db.table("foundItem").update({"lost_items": current_lost_items }).eq("id", match["found_id"]).execute()    
 
 
     return jsonify({
-        "checked_lost_count": len(lost_rows),
+        "checked_lost_count": len(lost_rows.data),
         "created_matches_count": len(created_matches),
         "created_matches": created_matches,
         "errors": errors
