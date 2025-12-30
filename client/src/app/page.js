@@ -5,7 +5,7 @@ import Header from "./components/Header.js";
 import { useAppContext } from "./components/contexts.js";
 import { useRouter } from "next/navigation";
 
-const Home=()=> {
+const Page=()=> {
   const {user,isDarkMode,setIsDarkMode} =useAppContext()
   const router=useRouter();
 
@@ -300,4 +300,4 @@ const Home=()=> {
 
 }
 
-export default Home;
+export default Page;
