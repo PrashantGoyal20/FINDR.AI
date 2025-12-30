@@ -29,16 +29,6 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} >
       <AppProvider>
       <Toaster position="top-right" />
-      <nav>
-       
-        <Link href='/login'/>
-        <Link href='/signup'/>
-
-        <Link href='/dashboard'/>
-        <Link href='/reportLost'/>
-        <Link href='/foundLost'/>
-        
-      </nav>
         {children}
 
         </AppProvider>
