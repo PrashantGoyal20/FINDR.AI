@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useAppContext } from '../../components/contexts'
 import Loader from '@/app/components/Loader';
 
-const page = () => {
+const Page = () => {
   const [item,setItem]=useState([])
   const [loading,setLoading]=useState(true)
   const {isDarkMode, setIsDarkMode} = useAppContext()
@@ -415,4 +415,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

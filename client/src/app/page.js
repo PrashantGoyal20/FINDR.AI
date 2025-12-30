@@ -54,7 +54,7 @@ const Home=()=> {
             </span>
             <br />
             <span className={`bg-gradient-to-r ${isDarkMode ? 'from-purple-400 to-blue-400' : 'from-blue-600 to-purple-600'} bg-clip-text text-transparent`}>
-              We'll Find It
+              We&apos;ll Find It
             </span>
           </h1>
           
@@ -201,7 +201,7 @@ const Home=()=> {
                 ))}
               </div>
               <p className={`mb-4 ${themeClasses.text.secondary}`}>
-                "Lost my wedding ring at the park. FINDR found it within 2 hours! The AI matched it perfectly with the park's lost & found database."
+                &quot;Lost my wedding ring at the park. FINDR found it within 2 hours! The AI matched it perfectly with the park&apos;s lost & found database.&quot;
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
@@ -221,7 +221,7 @@ const Home=()=> {
                 ))}
               </div>
               <p className={`mb-4 ${themeClasses.text.secondary}`}>
-                "My laptop was stolen and somehow ended up at a coffee shop. FINDR's network helped me track it down. Amazing service!"
+                &quot;My laptop was stolen and somehow ended up at a coffee shop. FINDR&apos;s network helped me track it down. Amazing service!&quot;
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
@@ -241,7 +241,7 @@ const Home=()=> {
                 ))}
               </div>
               <p className={`mb-4 ${themeClasses.text.secondary}`}>
-                "Left my keys at a restaurant. The AI matched them instantly and I had them back the same day. This app is a lifesaver!"
+                &quot;Left my keys at a restaurant. The AI matched them instantly and I had them back the same day. This app is a lifesaver!&quot;
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white font-bold mr-3">

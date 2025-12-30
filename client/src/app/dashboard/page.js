@@ -5,7 +5,7 @@ import { useAppContext } from '../components/contexts';
 import { useRouter } from 'next/navigation';
 import { Search,ChevronRight } from 'lucide-react';
 
-const page = () => {
+const Page = () => {
 
   const {user,isDarkMode,setIsDarkMode} =useAppContext()
     const router=useRouter();
@@ -80,4 +80,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

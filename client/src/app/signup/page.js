@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const page = () => {
+const Page = () => {
   const router = useRouter()
   const { isDarkMode, setIsDarkMode } = useAppContext()
   const [errors, setErrors] = useState({});
@@ -360,4 +360,4 @@ const page = () => {
 
 }
 
-export default page
+export default Page

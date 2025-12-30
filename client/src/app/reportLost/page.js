@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const page = () => {
+const Page = () => {
   const { user, isDarkMode, setIsDarkMode } = useAppContext();
   const [uploadedImages, setUploadedImages] = useState([]);
   const [dragOver, setDragOver] = useState(false);
@@ -439,4 +439,4 @@ const page = () => {
   );
 }
 
-export default page
+export default Page

@@ -6,7 +6,7 @@ import { useAppContext } from '../components/contexts';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
-const page = () => {
+const Page = () => {
   const router=useRouter();
   const {isDarkMode, setIsDarkMode} = useAppContext()
   const [searchQuery, setSearchQuery] = useState('');
@@ -280,4 +280,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

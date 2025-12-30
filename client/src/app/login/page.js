@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import axios from "axios"
 import toast from 'react-hot-toast';
 
-const page = () => {
+const Page = () => {
     const router = useRouter()
     const { isDarkMode, setIsDarkMode } = useAppContext()
     const [errors, setErrors] = useState({});
@@ -202,7 +202,7 @@ const page = () => {
                                     </button>
 
                                     <div className="text-center">
-                                        <span className={`${themeClasses.text.secondary}`}>Don't have an account? </span>
+                                        <span className={`${themeClasses.text.secondary}`}>Don&apos;t have an account? </span>
                                         <button
                                             type="button"
                                             onClick={() => router.push('/signup')}
@@ -227,4 +227,4 @@ const page = () => {
         )
     }
 
-    export default page
+    export default Page
