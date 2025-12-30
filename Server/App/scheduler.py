@@ -53,7 +53,6 @@ def match_active_lost():
     cutoff = iso_now_minus(min_age_minutes)
     
     lost_rows = (db.table("lostItem").select("*").eq("status","active").execute())
-    print(lost_rows.data[0])
     lost_items = [
     {
         "id": r.get("id"),
