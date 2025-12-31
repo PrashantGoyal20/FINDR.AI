@@ -9,6 +9,8 @@ __pycache__/
 # Distribution / packaging
 .Python
 /model
+/datasets
+/venv
 /get-pip.py
 build/
 develop-eggs/

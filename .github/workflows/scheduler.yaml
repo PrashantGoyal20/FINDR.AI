@@ -8,13 +8,14 @@ on:
 jobs:
   call-api:
     runs-on: ubuntu-latest
+    environment: scheduler_api
+
+    env:
+      SCHEDULER_API: ${{ vars.SCHEDULER_API }}
+      ADMIN_API_KEY: ${{ vars.ADMIN_API_KEY }}
 
     steps:
-      - name: Load scheduler API variables
-        run: |
-          echo "${{ secrets.scheduler_api }}" >> scheduler_env
-          source scheduler_env
-        shell: bash
+      
       - name: Call backend matcher API
         run: |
           curl -X POST "$SCHEDULER_API" \
