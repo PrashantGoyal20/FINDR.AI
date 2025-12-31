@@ -6,9 +6,20 @@ import open_clip
 from datasets import load_dataset
 from tqdm import tqdm
 import numpy as np
+from huggingface_hub import hf_hub_download
 
 import warnings
 warnings.filterwarnings("ignore", message=".*QuickGELU mismatch.*")
+HF_TOKEN=os.getenv("HF_TOKEN")
+
+MODEL_ID = "PrashantGoyal/findr-clip-ft"
+
+model_path = hf_hub_download(
+    repo_id=MODEL_ID,
+    force_download=True,
+    filename="clip/best.pt",
+    token=os.getenv("HF_TOKEN")
+)
 
 def collate(batch):
     img,text=zip(*batch)
@@ -43,7 +54,7 @@ def main(path='./model/clip/best.pt',arch='ViT-B-32', pretrained='openai'):
     torch.cuda.empty_cache()
     model, _, preprocess =open_clip.create_model_and_transforms(arch,pretrained=pretrained,device=device,quick_gelu=True )
     tokenizer=open_clip.get_tokenizer(arch)
-    state=torch.load(path,map_location='cuda')['model']
+    state=torch.load(model_path,map_location='cuda')['model']
     model.load_state_dict(state, strict=False)
     model.eval()
     print('model loaded')

@@ -5,7 +5,6 @@ from functools import wraps
 from supabase import create_client
 from flask_jwt_extended import JWTManager, create_access_token,unset_jwt_cookies, jwt_required, get_jwt_identity,decode_token
 from App.models import  User,LostItem,FoundItem,Match
-from dotenv import load_dotenv
 from flask_cors import CORS
 from src.training import encode_img_and_text
 from qdrant_client import QdrantClient
@@ -20,7 +19,6 @@ from datetime import timedelta
 warnings.filterwarnings("ignore", message=".*QuickGELU mismatch.*")
 
 
-load_dotenv()
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
@@ -87,7 +85,16 @@ class DotDict(dict):
     
 
 def upload_img(img):
-    return uploader.upload(img, resource_type="image")["secure_url"]    
+    return uploader.upload(img, resource_type="image")["secure_url"]
+
+@app.route("/", methods=["GET"])
+def root():
+    return {
+        "status": "ok",
+        "service": "Findr backend",
+        "message": "API is running"
+    }, 200  
+
 
 @app.route('/register',methods=["POST"])
 def register():
@@ -444,4 +451,9 @@ def foundMatchDetail(lost_id):
         }),200
     
 if __name__ == "__main__":
-    app.run(debug=True,port=8000)
+    app.run(
+        host="0.0.0.0",
+        port=7860,
+        debug=False,
+        use_reloader=False
+    )

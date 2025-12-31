@@ -10,13 +10,23 @@ from src.preprocessing import Preprocessing
 from torch.utils.data import DataLoader,Dataset
 import warnings
 import base64
+from huggingface_hub import hf_hub_download
 from io import BytesIO
 warnings.filterwarnings("ignore", message=".*QuickGELU mismatch.*")
 
 device='cuda' if torch.cuda.is_available() else 'cpu'
 torch.cuda.empty_cache()
 model, _, preprocess =open_clip.create_model_and_transforms('ViT-B-32',pretrained='openai',device=device )
-SAVE_DIR='model/clip/best.pt'
+HF_TOKEN=os.getenv("HF_TOKEN")
+
+MODEL_ID = "PrashantGoyal/findr-clip-ft"
+
+model_path = hf_hub_download(
+    repo_id=MODEL_ID,
+    force_download=True,
+    filename="clip/best.pt",
+    token=os.getenv("HF_TOKEN")
+)
 tokenizer=open_clip.get_tokenizer('ViT-B-32')
 
 def seed_everything(seed=42):
@@ -150,7 +160,7 @@ def feedback(model,processor,device,data,epochs=5,batch_size=4,lr=1e-6):
     dataLoader=DataLoader(dataset,batch_size=batch_size,shuffle=True)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
     loss_fn = nn.CosineEmbeddingLoss()
-    model.load_state_dict(torch.load(SAVE_DIR, map_location=device))
+    model.load_state_dict(torch.load(model_path, map_location=device))
     model.train()
     for epoch in range(epochs):
         total_loss = 0
@@ -178,7 +188,7 @@ def feedback(model,processor,device,data,epochs=5,batch_size=4,lr=1e-6):
 def encode_img_and_text(imgs,text):
     image_feat=[]
     model, _, preprocess =open_clip.create_model_and_transforms('ViT-B-32',pretrained='openai',device=device,quick_gelu=True )
-    checkpoint = torch.load(SAVE_DIR, map_location=device)
+    checkpoint = torch.load(model_path, map_location=device)
     model.to(device)
     for img in imgs:
         if hasattr(img, 'read'):
